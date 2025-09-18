@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique
+  email     String?
+  password  String
+  createdAt DateTime  @default(now())
+  items     Item[]
+  sellings  Selling[]
+}
+
+model Item {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  rate        Float
+  preference  Boolean   @default(false)   // 👈 नया field
+  createdAt   DateTime  @default(now())
+
+  user        User      @relation(fields: [userId], references: [id])
+  userId      Int
+
+  sellings    Selling[]
+}
+
+
+model Selling {
+  id        Int       @id @default(autoincrement())
+  weight    Float
+  rate      Float
+  total     Float
+  type      TransactionType @default(BUY) // 👈 BUY ya SELL
+  createdAt DateTime  @default(now())
+  item      Item      @relation(fields: [itemId], references: [id])
+  itemId    Int
+  user      User      @relation(fields: [userId], references: [id])
+  userId    Int
+}
+
+enum TransactionType {
+  BUY
+  SELL
+}
