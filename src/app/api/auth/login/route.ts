@@ -23,6 +23,6 @@ export async function POST(req: Request) {
   const token = signToken(user.id);
 
   const res = NextResponse.json({ message: "Login successful" });
-  res.cookies.set("token", token, { httpOnly: true, secure: false }); 
+  res.cookies.set("token", token, { httpOnly: true, secure: false,path:"/" }); 
   return res;
 }

@@ -29,7 +29,7 @@ export default function LoginPage() {
     }
 
     alert("Login successful!");
-    router.push("/rates"); // login ke baad rates page pe redirect
+    router.push("/"); // login ke baad rates page pe redirect
   };
 
   return (
