@@ -13,13 +13,14 @@ export async function GET() {
     }
 
     const userId = authResult.userId;
-    
+
     const items = await prisma.item.findMany({
       where: { userId }
     });
     return NextResponse.json(items);
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 500 });
+  } catch (err: unknown) {
+    const errorMessage = err instanceof Error ? err.message : "Internal server error";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
 
@@ -62,14 +63,10 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json(item, { status: id ? 200 : 201 });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("Error in items API:", err);
-    
-    // Handle specific Prisma errors
-    if (err.code === 'P2025') {
-      return NextResponse.json({ error: "Item not found" }, { status: 404 });
-    }
-    
-    return NextResponse.json({ error: err.message }, { status: 500 });
+
+    const errorMessage = err instanceof Error ? err.message : "Internal server error";
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }

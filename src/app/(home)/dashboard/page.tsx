@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DashboardData, Selling } from "@/lib/types"; // Adjust the import path as needed
+import { DashboardData } from "@/lib/types"; // Adjust the import path as needed
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);

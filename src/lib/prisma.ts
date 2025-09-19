@@ -3,7 +3,6 @@ import { PrismaClient } from "@prisma/client";
 
 declare global {
   // prevent multiple instances during hot reload in dev
-  // eslint-disable-next-line no-var
   var prisma: PrismaClient | undefined;
 }
 

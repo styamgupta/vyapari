@@ -26,29 +26,29 @@ export async function middleware(req: NextRequest) {
 
   // If token exists, verify it
   try {
-    const payload =verifyToken(token);
-    
+    verifyToken(token);
+
     // User is authenticated with valid token
     // Redirect away from auth pages
     if (isAuthPage) {
       return NextResponse.redirect(new URL("/", req.url));
     }
-    
+
     // Allow access to all other routes
     return NextResponse.next();
   } catch (error) {
     console.error("JWT Verification Error:", error);
-    
+
     // Token is invalid - clear it and redirect to login
-    const response = isProtectedRoute 
+    const response = isProtectedRoute
       ? NextResponse.redirect(new URL("/login", req.url))
       : NextResponse.next();
-    
+
     response.cookies.set("token", "", {
       maxAge: 0,
       path: "/",
     });
-    
+
     return response;
   }
 }

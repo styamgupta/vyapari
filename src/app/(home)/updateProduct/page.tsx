@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
+import { Item } from "@/lib/types";
 export default function ProductsPage() {
-  const [items, setItems] = useState<any[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
   const [selectedId, setSelectedId] = useState<number | "">("");
   const [name, setName] = useState("");
   const [rate, setRate] = useState<number | "">("");
@@ -21,7 +21,7 @@ export default function ProductsPage() {
       setItems(data);
 
       // 👇 default preference agar koi hai
-      const prefItem = data.find((i: any) => i.preference === true);
+      const prefItem = data.find((i: Item) => i.preference === true);
       if (prefItem) {
         setPreferenceId(prefItem.id);
       } else if (data.length === 1) {
