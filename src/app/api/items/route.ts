@@ -1,9 +1,22 @@
+// app/api/items/route.ts
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { authenticateRequest } from "@/app/api/auth/api-utils";
+import { ItemApiRequest } from "@/lib/types";
 
 export async function GET() {
   try {
-    const items = await prisma.item.findMany();
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+
+    const userId = authResult.userId;
+    
+    const items = await prisma.item.findMany({
+      where: { userId }
+    });
     return NextResponse.json(items);
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
@@ -12,8 +25,14 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { id, name, rate = 0, userId = 1 } = body;
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) {
+      return authResult;
+    }
+
+    const userId = authResult.userId;
+    const body: ItemApiRequest = await req.json();
+    const { id, name, rate = 0 } = body;
 
     if (!name) {
       return NextResponse.json({ error: "Name required" }, { status: 400 });
@@ -22,20 +41,35 @@ export async function POST(req: Request) {
     let item;
 
     if (id) {
-      // 👇 Update existing item
+      // Update existing item
       item = await prisma.item.update({
-        where: { id },
-        data: { name, rate},
+        where: { id, userId },
+        data: {
+          name,
+          rate: Number(rate)
+        },
       });
     } else {
-      // 👇 Create new item
+      // Create new item - use Prisma's exact expected structure
       item = await prisma.item.create({
-        data: { name, rate, userId },
+        data: {
+          name,
+          rate: Number(rate),
+          userId,
+          preference: false // Default value
+        },
       });
     }
 
     return NextResponse.json(item, { status: id ? 200 : 201 });
   } catch (err: any) {
+    console.error("Error in items API:", err);
+    
+    // Handle specific Prisma errors
+    if (err.code === 'P2025') {
+      return NextResponse.json({ error: "Item not found" }, { status: 404 });
+    }
+    
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

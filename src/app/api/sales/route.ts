@@ -1,21 +1,18 @@
+// app/api/sales/route.ts
+
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { verifyToken } from "@/lib/auth";
-import { cookies } from "next/headers";
+import { authenticateRequest } from "@/app/api/auth/api-utils";
+import { SaleCreateData } from "@/lib/types";
 
 export async function GET() {
   try {
-    const token = (await cookies()).get("token")?.value;
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) {
+      return authResult; // Returns error response if authentication failed
     }
 
-    const decoded = verifyToken(token);
-    if (!decoded) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
-    const userId = decoded.userId;
+    const userId = authResult.userId;
 
     // ✅ Sellings fetch करो
     const sellings = await prisma.selling.findMany({
@@ -49,22 +46,16 @@ export async function GET() {
   }
 }
 
-
 export async function POST(req: Request) {
   try {
-    const token = (await cookies()).get("token")?.value;
-    if (!token) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) {
+      return authResult; // Returns error response if authentication failed
     }
 
-    const decoded = verifyToken(token);
-    if (!decoded) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
-    const userId = decoded.userId;
+    const userId = authResult.userId;
     const body = await req.json();
-    const { productId, weight, rate, total, type } = body;
+    const { productId, weight, rate, total, type }: SaleCreateData = body;
 
     if (!productId || !weight || !rate || !total || !type) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });

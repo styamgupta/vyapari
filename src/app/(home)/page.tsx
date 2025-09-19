@@ -1,15 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-interface Item {
-  id: number;
-  name: string;
-  rate: number;
-  preference: boolean; // ✅ preference from backend
-}
-
-type TransactionType = "BUY" | "SELL";
+import { Item, TransactionType } from "@/lib/types"; // Adjust the import path as needed
 
 export default function QuickSalePage() {
   const [items, setItems] = useState<Item[]>([]);
@@ -17,7 +9,7 @@ export default function QuickSalePage() {
   const [weight, setWeight] = useState<number | "">("");
   const [total, setTotal] = useState<number>(0);
   const [message, setMessage] = useState("");
-  const [type, setType] = useState<TransactionType>("BUY"); // ✅ new state
+  const [type, setType] = useState<TransactionType>("BUY");
 
   // Fetch items (with preference)
   const fetchItems = async () => {
@@ -26,7 +18,7 @@ export default function QuickSalePage() {
       const data: Item[] = await res.json();
       setItems(data);
 
-      // ✅ Auto-select preference item
+      // Auto-select preference item
       const pref = data.find((i) => i.preference === true);
       if (pref) {
         setSelectedItem(pref);
@@ -65,7 +57,7 @@ export default function QuickSalePage() {
           weight,
           rate: selectedItem.rate,
           total,
-          type, // ✅ send BUY or SELL
+          type,
         }),
       });
 
@@ -158,4 +150,4 @@ export default function QuickSalePage() {
       </button>
     </div>
   );
-}
+};

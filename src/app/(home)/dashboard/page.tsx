@@ -1,25 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-type Selling = {
-  id: number;
-  weight: number;
-  rate: number;
-  total: number;
-  type: "BUY" | "SELL";
-  createdAt: string;
-  item: { name: string };
-};
-
-type DashboardData = {
-  summary: {
-    totalBuy: number;
-    totalSell: number;
-    profit: number;
-  };
-  sellings: Selling[];
-};
+import { DashboardData, Selling } from "@/lib/types"; // Adjust the import path as needed
 
 export default function DashboardPage() {
   const [data, setData] = useState<DashboardData | null>(null);

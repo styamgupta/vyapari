@@ -1,15 +1,23 @@
+// Updated version with authentication
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { authenticateRequest } from "@/app/api/auth/api-utils";
+import { PreferenceUpdateRequest } from "@/lib/types";
 
-// ✅ Preference update (per user only one true)
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
-    const { itemId, userId } = body;
+    const authResult = await authenticateRequest();
+    if (authResult instanceof NextResponse) {
+      return authResult; // Returns error response if authentication failed
+    }
 
-    if (!itemId || !userId) {
+    const body = await req.json();
+    const { itemId }: Omit<PreferenceUpdateRequest, 'userId'> = body;
+    const userId = authResult.userId; // Get userId from authenticated user
+
+    if (!itemId) {
       return NextResponse.json(
-        { error: "itemId and userId required" },
+        { error: "itemId required" },
         { status: 400 }
       );
     }
@@ -22,7 +30,7 @@ export async function POST(req: Request) {
 
     // ✅ Step 2: Naye wale ko true karo
     const updated = await prisma.item.update({
-      where: { id: itemId },
+      where: { id: itemId, userId }, // Ensure user owns this item
       data: { preference: true },
     });
 
